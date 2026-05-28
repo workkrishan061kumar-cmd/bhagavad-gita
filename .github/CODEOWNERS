@@ -1,0 +1,19 @@
+# Each feature folder has an owner.
+# When teammates join, add their GitHub handle here.
+
+/src/features/verse/         @krishan061kumar
+/src/features/chapter/       @krishan061kumar
+/src/features/ask-krishna/   @krishan061kumar
+/src/features/journal/       @krishan061kumar
+/src/features/daily/         @krishan061kumar
+/src/features/search/        @krishan061kumar
+/src/features/library/       @krishan061kumar
+/src/features/auth/          @krishan061kumar
+/src/features/share-card/    @krishan061kumar
+/src/features/whatsapp/      @krishan061kumar
+
+/src/shared/                 @krishan061kumar
+/src/app/                    @krishan061kumar
+/prisma/                     @krishan061kumar
+/.github/                    @krishan061kumar
+/docs/                       @krishan061kumar

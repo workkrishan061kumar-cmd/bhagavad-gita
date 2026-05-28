@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Biome lint + format check
+        run: npm run lint
+      - name: TypeScript typecheck
+        run: npm run typecheck
+      - name: Prisma generate
+        run: npm run db:generate
+        env:
+          DATABASE_URL: postgresql://stub:stub@localhost:5432/stub
+      - name: Unit tests
+        run: npm run test:run
+      - name: Build
+        run: npm run build
+        env:
+          SKIP_ENV_VALIDATION: '1'
+          DATABASE_URL: postgresql://stub:stub@localhost:5432/stub
+          NEXTAUTH_SECRET: 'ci-stub-secret-must-be-at-least-32-chars'

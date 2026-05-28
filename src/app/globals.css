@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-base: #0b0f1a;
+  --color-bg-surface: #111827;
+  --color-bg-elevated: #1a2236;
+
+  --color-gold-100: #fbf3d6;
+  --color-gold-300: #e8d183;
+  --color-gold-500: #c9a84c;
+  --color-gold-700: #a88838;
+  --color-gold-900: #7a6428;
+
+  --color-saffron-300: #fca864;
+  --color-saffron-500: #f97316;
+  --color-saffron-700: #c2520b;
+
+  --color-text-primary: #f5f0e8;
+  --color-text-secondary: #d9d2c5;
+  --color-text-muted: #a89f91;
+  --color-text-disabled: #6b6358;
+  --color-text-sanskrit: #e8d183;
+
+  --color-mood-anxious: #6b89b5;
+  --color-mood-grateful: #d4a24c;
+  --color-mood-confused: #a88fb8;
+  --color-mood-motivated: #e89a4d;
+  --color-mood-grieving: #7b7b8c;
+  --color-mood-angry: #c4623e;
+  --color-mood-peaceful: #8fb89e;
+  --color-mood-lost: #9b8270;
+
+  --font-sanskrit: "Tiro Devanagari Sanskrit", "Tiro Devanagari Hindi", serif;
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, monospace;
+
+  --ease-candle: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-drift: cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-inscribe: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --shadow-soft: 0 4px 24px -8px rgb(0 0 0 / 0.4);
+  --shadow-gold-glow: 0 0 32px -4px rgb(201 168 76 / 0.25);
+  --shadow-ember: 0 0 40px -8px rgb(249 115 22 / 0.35);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--color-bg-base);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .font-sanskrit {
+    font-family: var(--font-sanskrit);
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: var(--color-gold-500);
+    color: var(--color-bg-base);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold-500);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
+    }
+  }
+}
+
+@layer utilities {
+  .text-sanskrit-glow {
+    text-shadow: 0 0 20px rgb(232 209 131 / 0.25);
+  }
+
+  .glow-gold {
+    box-shadow: var(--shadow-gold-glow);
+  }
+}
+
+@keyframes mandala-draw {
+  from {
+    stroke-dasharray: 4000;
+    stroke-dashoffset: 4000;
+    opacity: 0;
+  }
+  to {
+    stroke-dasharray: 4000;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.animate-mandala-draw path,
+.animate-mandala-draw circle {
+  animation: mandala-draw 1400ms var(--ease-inscribe) both;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 400ms;
+  animation-timing-function: var(--ease-candle);
+}
+
+::view-transition-group(.nav-forward),
+::view-transition-group(.nav-back) {
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-candle);
+}
+
+::view-transition-old(.nav-forward) {
+  animation-name: slide-out-left;
+}
+::view-transition-new(.nav-forward) {
+  animation-name: slide-in-right;
+}
+::view-transition-old(.nav-back) {
+  animation-name: slide-out-right;
+}
+::view-transition-new(.nav-back) {
+  animation-name: slide-in-left;
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slide-out-left {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+}
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+}

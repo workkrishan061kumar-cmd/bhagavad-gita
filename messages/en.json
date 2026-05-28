@@ -1,0 +1,29 @@
+{
+  "nav": {
+    "chapters": "Chapters",
+    "ask": "Ask Krishna",
+    "daily": "Daily Verse",
+    "library": "Library",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
+  },
+  "home": {
+    "kicker": "Wisdom for modern life",
+    "headline": "Ancient wisdom. Daily guidance.",
+    "tagline": "Read all 700 verses. Ask Krishna for guidance. Reflect on what speaks to you.",
+    "ctaPrimary": "Start Reading",
+    "ctaSecondary": "Ask Krishna"
+  },
+  "common": {
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading…",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "bookmark": "Bookmark",
+    "share": "Share",
+    "reflect": "Reflect"
+  }
+}

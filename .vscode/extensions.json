@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "biomejs.biome",
+    "bradlc.vscode-tailwindcss",
+    "prisma.prisma",
+    "ms-playwright.playwright",
+    "vitest.explorer",
+    "github.copilot",
+    "anthropic.claude-code"
+  ]
+}
