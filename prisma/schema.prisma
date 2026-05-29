@@ -111,6 +111,10 @@ model VerseTranslation {
   source     String? // attribution / publisher
   createdAt  DateTime @default(now())
 
+  // Postgres generated tsvector column for full-text search.
+  // Managed by supabase/migrations/02_fts_search.sql, not Prisma.
+  searchTsv Unsupported("tsvector")? @map("search_tsv")
+
   verse    Verse    @relation(fields: [verseId], references: [id])
   author   Author   @relation(fields: [authorId], references: [id])
   language Language @relation(fields: [languageId], references: [id])

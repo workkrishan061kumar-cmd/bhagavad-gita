@@ -99,5 +99,17 @@
     "language": "Translation language",
     "translator": "Translator",
     "by": "by"
+  },
+  "search": {
+    "open": "Open search (Cmd+K)",
+    "close": "Close search",
+    "title": "Search verses",
+    "placeholder": "Search a feeling, a question, or a verse number…",
+    "searching": "Searching…",
+    "noResults": "No verses found for \"{query}\".",
+    "jumpTo": "Jump to verse {ref}",
+    "hint": "Type at least 2 characters or a verse reference like 2.47",
+    "navigate": "navigate",
+    "select": "select"
   }
 }

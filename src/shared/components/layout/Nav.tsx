@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { CommandPalette } from './CommandPalette';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 export function Nav() {
@@ -38,6 +39,7 @@ export function Nav() {
         </ul>
 
         <div className="flex items-center gap-2">
+          <CommandPalette />
           <LanguageSwitcher />
           <Link
             href="/auth"
