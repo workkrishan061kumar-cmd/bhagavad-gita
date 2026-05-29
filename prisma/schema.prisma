@@ -12,7 +12,50 @@ datasource db {
 }
 
 // ─────────────────────────────────────────────────────────
-// Core content (public-read)
+// Metadata: Languages
+// ─────────────────────────────────────────────────────────
+// Seeded with 22 Indian official languages + 10 major world languages.
+// `enabled` controls UI visibility — toggle on once translations land.
+
+model Language {
+  id           Int      @id @default(autoincrement())
+  code         String   @unique // 'en', 'hi', 'ta', 'sa' (ISO 639-1 or 3)
+  name         String // English name: 'English', 'Hindi', 'Tamil'
+  nativeName   String // Native script: 'English', 'हिन्दी', 'தமிழ்'
+  direction    String   @default("ltr") // 'ltr' or 'rtl'
+  enabled      Boolean  @default(false) // shown in UI selector
+  isIndian     Boolean  @default(false) // Indian Constitution 8th Schedule
+  sortOrder    Int      @default(100)
+
+  translations VerseTranslation[]
+  recitations  VerseRecitation[]
+  commentaries Commentary[]
+
+  @@map("languages")
+}
+
+// ─────────────────────────────────────────────────────────
+// Metadata: Authors (translators, commentators, reciters)
+// ─────────────────────────────────────────────────────────
+
+model Author {
+  id         Int     @id @default(autoincrement())
+  externalId Int?    @unique // matches gita repo's author.id
+  name       String
+  slug       String  @unique
+  bio        String? @db.Text
+  era        String? // '16th century', 'Modern', etc.
+  tradition  String? // 'Advaita', 'Vaishnava', etc.
+
+  translations VerseTranslation[]
+  commentaries Commentary[]
+  recitations  VerseRecitation[] @relation("AuthorRecitations")
+
+  @@map("authors")
+}
+
+// ─────────────────────────────────────────────────────────
+// Core content
 // ─────────────────────────────────────────────────────────
 
 model Chapter {
@@ -21,7 +64,8 @@ model Chapter {
   titleSa    String
   titleEn    String
   titleHi    String
-  summary    String  @db.Text
+  summary    String  @db.Text // English summary
+  summaryHi  String? @db.Text // Hindi summary (from chapters.json)
   verseCount Int
   verses     Verse[]
 
@@ -29,22 +73,23 @@ model Chapter {
 }
 
 model Verse {
-  id              Int      @id @default(autoincrement())
+  id              Int     @id @default(autoincrement())
+  externalId      Int?    @unique // matches gita repo's verse.id (global 1-701)
   chapterId       Int
-  number          Int
-  sanskrit        String   @db.Text
-  transliteration String   @db.Text
-  hindi           String   @db.Text
-  english         String   @db.Text
-  wordMeanings    Json?
+  number          Int // verse number within chapter
+  sanskrit        String  @db.Text // Devanagari (invariant)
+  transliteration String  @db.Text // IAST (invariant)
+  wordMeanings    String? @db.Text // word-by-word breakdown
   themes          String[]
   moods           String[]
   embedding       Unsupported("vector(1536)")?
 
-  chapter        Chapter        @relation(fields: [chapterId], references: [id])
+  chapter        Chapter            @relation(fields: [chapterId], references: [id])
+  translations   VerseTranslation[]
+  commentaries   Commentary[]
+  recitations    VerseRecitation[]
   bookmarks      Bookmark[]
   journalEntries JournalEntry[]
-  commentaries   Commentary[]
   moodLogs       MoodLog[]
 
   @@unique([chapterId, number])
@@ -52,16 +97,68 @@ model Verse {
   @@map("verses")
 }
 
+// ─────────────────────────────────────────────────────────
+// VerseTranslation — many-to-many: verse × language × author
+// ─────────────────────────────────────────────────────────
+
+model VerseTranslation {
+  id         Int      @id @default(autoincrement())
+  verseId    Int
+  authorId   Int
+  languageId Int
+  text       String   @db.Text
+  isFeatured Boolean  @default(false) // default pick for this language
+  source     String? // attribution / publisher
+  createdAt  DateTime @default(now())
+
+  verse    Verse    @relation(fields: [verseId], references: [id])
+  author   Author   @relation(fields: [authorId], references: [id])
+  language Language @relation(fields: [languageId], references: [id])
+
+  @@unique([verseId, authorId, languageId])
+  @@index([languageId, isFeatured])
+  @@map("verse_translations")
+}
+
+// ─────────────────────────────────────────────────────────
+// VerseRecitation — many-to-many: verse × language × reciter
+// ─────────────────────────────────────────────────────────
+
+model VerseRecitation {
+  id              Int      @id @default(autoincrement())
+  verseId         Int
+  reciterId       Int // points to Author (used as reciter)
+  languageId      Int // typically Sanskrit
+  audioUrl        String // Supabase Storage public URL
+  durationSeconds Int?
+  isFeatured      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  verse    Verse    @relation(fields: [verseId], references: [id])
+  reciter  Author   @relation("AuthorRecitations", fields: [reciterId], references: [id])
+  language Language @relation(fields: [languageId], references: [id])
+
+  @@unique([verseId, reciterId, languageId])
+  @@map("verse_recitations")
+}
+
+// ─────────────────────────────────────────────────────────
+// Commentary — separate from translation, longer-form analysis
+// ─────────────────────────────────────────────────────────
+
 model Commentary {
-  id       Int    @id @default(autoincrement())
-  verseId  Int
-  author   String
-  language String
-  text     String @db.Text
-  source   String
+  id         Int    @id @default(autoincrement())
+  verseId    Int
+  authorId   Int
+  languageId Int
+  text       String @db.Text
+  source     String
 
-  verse Verse @relation(fields: [verseId], references: [id])
+  verse    Verse    @relation(fields: [verseId], references: [id])
+  author   Author   @relation(fields: [authorId], references: [id])
+  language Language @relation(fields: [languageId], references: [id])
 
+  @@index([verseId])
   @@map("commentaries")
 }
 
@@ -75,6 +172,7 @@ model User {
   name              String?
   image             String?
   preferredLanguage String    @default("en")
+  preferredAuthorId Int? // user's chosen translator
   whatsappOptIn     Boolean   @default(false)
   whatsappNumber    String?
   streakDays        Int       @default(0)
