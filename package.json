@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "prisma generate && next build",
+    "postinstall": "prisma generate || true",
     "start": "next start",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
@@ -21,7 +22,7 @@
     "db:studio": "prisma studio",
     "db:test": "dotenv -e .env.local -- node scripts/test-connection.mjs",
     "db:upload-recitations": "dotenv -e .env.local -- node scripts/upload-recitations.mjs",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,md}": "biome check --write --no-errors-on-unmatched"
