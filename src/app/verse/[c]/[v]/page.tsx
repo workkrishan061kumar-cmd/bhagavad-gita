@@ -1,14 +1,24 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getNeighborVerses, getVerse, VerseAudioPlayer } from '@/features/verse';
+import { getNeighborVerses, getVerse, TranslationPicker, VerseAudioPlayer } from '@/features/verse';
 import { Mandala } from '@/shared/components/brand/Mandala';
 import { Container } from '@/shared/components/layout/Container';
 import { Nav } from '@/shared/components/layout/Nav';
 
 type Params = Promise<{ c: string; v: string }>;
+type SearchParams = Promise<{ lang?: string; author?: string }>;
 
-export default async function VersePage({ params }: { params: Params }) {
+const DEFAULT_LANG = 'en';
+
+export default async function VersePage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
   const { c, v } = await params;
+  const { lang: langParam, author: authorParam } = await searchParams;
   const chapter = Number.parseInt(c, 10);
   const verse = Number.parseInt(v, 10);
   if (Number.isNaN(chapter) || Number.isNaN(verse)) return notFound();
@@ -19,10 +29,60 @@ export default async function VersePage({ params }: { params: Params }) {
   ]);
   if (!data) return notFound();
 
-  const featuredEn = data.translations.find((t) => t.language.code === 'en' && t.isFeatured);
-  const featuredHi = data.translations.find((t) => t.language.code === 'hi' && t.isFeatured);
-  const featuredRecitation = data.recitations[0];
+  // Build language + author options from this verse's translations.
+  const languageMap = new Map<string, { code: string; name: string; nativeName: string }>();
+  const authorsByLang = new Map<string, Map<string, { id: number; name: string; slug: string }>>();
+  const featuredAuthorByLang: Record<string, string> = {};
 
+  for (const t of data.translations) {
+    const code = t.language.code;
+    if (!languageMap.has(code)) {
+      languageMap.set(code, {
+        code,
+        name: t.language.name,
+        nativeName: t.language.nativeName,
+      });
+    }
+    if (!authorsByLang.has(code)) {
+      authorsByLang.set(code, new Map());
+    }
+    const am = authorsByLang.get(code);
+    if (am) {
+      am.set(t.author.slug, { id: t.author.id, name: t.author.name, slug: t.author.slug });
+    }
+    if (t.isFeatured && !featuredAuthorByLang[code]) {
+      featuredAuthorByLang[code] = t.author.slug;
+    }
+  }
+
+  const availableLanguages = Array.from(languageMap.values()).sort((a, b) =>
+    a.code === DEFAULT_LANG ? -1 : b.code === DEFAULT_LANG ? 1 : a.name.localeCompare(b.name),
+  );
+  const availableAuthorsByLang: Record<string, { id: number; name: string; slug: string }[]> = {};
+  for (const [code, m] of authorsByLang.entries()) {
+    availableAuthorsByLang[code] = Array.from(m.values()).sort((a, b) => {
+      const fa = featuredAuthorByLang[code];
+      if (a.slug === fa) return -1;
+      if (b.slug === fa) return 1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  // Resolve current selection.
+  const currentLang = (langParam && languageMap.has(langParam) ? langParam : null) ?? DEFAULT_LANG;
+  const featuredForLang = featuredAuthorByLang[currentLang];
+  const candidateAuthors = availableAuthorsByLang[currentLang] ?? [];
+  const currentAuthor =
+    (authorParam && candidateAuthors.some((a) => a.slug === authorParam) ? authorParam : null) ??
+    featuredForLang ??
+    candidateAuthors[0]?.slug ??
+    '';
+
+  const currentTranslation = data.translations.find(
+    (t) => t.language.code === currentLang && t.author.slug === currentAuthor,
+  );
+
+  const featuredRecitation = data.recitations[0];
   const seed = chapter * 1000 + verse;
 
   return (
@@ -77,27 +137,34 @@ export default async function VersePage({ params }: { params: Params }) {
             {data.transliteration}
           </p>
 
-          {/* English featured translation */}
-          {featuredEn && (
-            <div className="mt-10">
-              <p className="text-gold-500/60 text-xs uppercase tracking-[0.2em] text-center mb-3">
-                {featuredEn.author.name} — English
-              </p>
-              <p className="font-display text-text-primary text-lg md:text-xl leading-relaxed text-center">
-                {featuredEn.text}
-              </p>
-            </div>
-          )}
+          {/* Translation picker + selected translation */}
+          {availableLanguages.length > 0 && (
+            <div className="mt-12">
+              <div className="mb-6">
+                <TranslationPicker
+                  availableLanguages={availableLanguages}
+                  availableAuthorsByLang={availableAuthorsByLang}
+                  featuredAuthorByLang={featuredAuthorByLang}
+                  currentLang={currentLang}
+                  currentAuthor={currentAuthor}
+                />
+              </div>
 
-          {/* Hindi featured translation */}
-          {featuredHi && (
-            <div className="mt-8">
-              <p className="text-gold-500/60 text-xs uppercase tracking-[0.2em] text-center mb-3">
-                {featuredHi.author.name} — हिन्दी
-              </p>
-              <p className="font-display text-text-primary text-base md:text-lg leading-relaxed text-center">
-                {featuredHi.text}
-              </p>
+              {currentTranslation ? (
+                <p
+                  className={
+                    currentLang === 'en'
+                      ? 'font-display text-text-primary text-lg md:text-xl leading-relaxed text-center'
+                      : 'font-display text-text-primary text-base md:text-lg leading-relaxed text-center'
+                  }
+                >
+                  {currentTranslation.text}
+                </p>
+              ) : (
+                <p className="text-text-muted text-sm text-center italic">
+                  No translation available for the selected combination.
+                </p>
+              )}
             </div>
           )}
 
@@ -117,21 +184,30 @@ export default async function VersePage({ params }: { params: Params }) {
           {data.translations.length > 1 && (
             <details className="mt-6 group">
               <summary className="cursor-pointer text-gold-500 text-xs uppercase tracking-[0.2em] text-center hover:text-gold-300 transition-colors">
-                {data.translations.length} translations available →
+                See all {data.translations.length} translations →
               </summary>
               <div className="mt-6 space-y-5">
-                {data.translations.map((t) => (
-                  <div
-                    key={t.id}
-                    className="p-4 rounded-xl bg-bg-surface/40 border border-gold-500/10"
-                  >
-                    <p className="text-gold-500/70 text-xs mb-1">
-                      {t.author.name} · {t.language.nativeName}
-                      {t.isFeatured && ' · featured'}
-                    </p>
-                    <p className="text-text-secondary text-sm leading-relaxed">{t.text}</p>
-                  </div>
-                ))}
+                {data.translations.map((t) => {
+                  const isCurrent =
+                    t.language.code === currentLang && t.author.slug === currentAuthor;
+                  return (
+                    <div
+                      key={t.id}
+                      className={
+                        isCurrent
+                          ? 'p-4 rounded-xl bg-bg-surface/60 border border-gold-500/40'
+                          : 'p-4 rounded-xl bg-bg-surface/40 border border-gold-500/10'
+                      }
+                    >
+                      <p className="text-gold-500/70 text-xs mb-1">
+                        {t.author.name} · {t.language.nativeName}
+                        {t.isFeatured && ' · featured'}
+                        {isCurrent && ' · selected'}
+                      </p>
+                      <p className="text-text-secondary text-sm leading-relaxed">{t.text}</p>
+                    </div>
+                  );
+                })}
               </div>
             </details>
           )}
