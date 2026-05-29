@@ -28,14 +28,21 @@ export async function seedTranslations(): Promise<void> {
   const translations = translationsData as RawTranslation[];
 
   // Pre-fetch language and author IDs in a map for O(1) lookup.
+  // Explicit types defend against the seed running before `prisma generate` has populated typed client.
   const languages = await db.language.findMany();
-  const langByCode = new Map(languages.map((l) => [l.code, l.id]));
+  const langByCode = new Map<string, number>(
+    languages.map((l: { code: string; id: number }) => [l.code, l.id]),
+  );
 
   const authors = await db.author.findMany();
-  const authorByExternalId = new Map(authors.map((a) => [a.externalId, a.id]));
+  const authorByExternalId = new Map<number | null, number>(
+    authors.map((a: { externalId: number | null; id: number }) => [a.externalId, a.id]),
+  );
 
   const verses = await db.verse.findMany({ select: { id: true, externalId: true } });
-  const verseByExternalId = new Map(verses.map((v) => [v.externalId, v.id]));
+  const verseByExternalId = new Map<number | null, number>(
+    verses.map((v: { id: number; externalId: number | null }) => [v.externalId, v.id]),
+  );
 
   let processed = 0;
   let skipped = 0;
