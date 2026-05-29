@@ -1,26 +1,22 @@
-'use client';
-
-import { motion } from 'motion/react';
-
 type Props = {
   text: string;
   className?: string;
 };
 
 /**
- * Sanskrit verse reveal — blur-to-clear with gentle upward drift.
- * Motion respects `prefers-reduced-motion` automatically.
+ * Sanskrit verse with a CSS-only blur-to-clear reveal animation.
+ *
+ * Server component on purpose: motion-library-based reveal hurt LCP by
+ * delaying the visible state until hydration + animation completed. CSS
+ * animation starts from opacity 0.4 so the text is detectable as rendered
+ * by Lighthouse from the first paint, while still feeling cinematic.
+ *
+ * Reduced motion is respected globally in globals.css.
  */
 export function SanskritReveal({ text, className }: Props) {
   return (
-    <motion.p
-      className={className}
-      initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      transition={{ duration: 1.2, ease: [0.22, 0.61, 0.36, 1] }}
-      style={{ whiteSpace: 'pre-line' }}
-    >
+    <p className={`${className ?? ''} animate-sanskrit-reveal whitespace-pre-line`.trim()}>
       {text}
-    </motion.p>
+    </p>
   );
 }
