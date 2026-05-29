@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getNeighborVerses, getVerse } from '@/features/verse';
+import { getNeighborVerses, getVerse, VerseAudioPlayer } from '@/features/verse';
 import { Mandala } from '@/shared/components/brand/Mandala';
 import { Container } from '@/shared/components/layout/Container';
 import { Nav } from '@/shared/components/layout/Nav';
@@ -21,6 +21,7 @@ export default async function VersePage({ params }: { params: Params }) {
 
   const featuredEn = data.translations.find((t) => t.language.code === 'en' && t.isFeatured);
   const featuredHi = data.translations.find((t) => t.language.code === 'hi' && t.isFeatured);
+  const featuredRecitation = data.recitations[0];
 
   const seed = chapter * 1000 + verse;
 
@@ -48,9 +49,20 @@ export default async function VersePage({ params }: { params: Params }) {
           </div>
 
           {/* Verse marker */}
-          <p className="text-center text-gold-500 text-xs uppercase tracking-[0.3em] mb-10">
+          <p className="text-center text-gold-500 text-xs uppercase tracking-[0.3em] mb-8">
             · Chapter {chapter} · Verse {verse} ·
           </p>
+
+          {/* Audio recitation */}
+          {featuredRecitation && (
+            <div className="mb-10">
+              <VerseAudioPlayer
+                audioUrl={featuredRecitation.audioUrl}
+                reciter={featuredRecitation.reciter.name}
+                seed={seed}
+              />
+            </div>
+          )}
 
           {/* Sanskrit */}
           <p className="font-sanskrit text-text-sanskrit text-2xl md:text-4xl text-center leading-relaxed text-sanskrit-glow whitespace-pre-line">
