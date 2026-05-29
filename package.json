@@ -20,6 +20,7 @@
     "db:seed": "tsx prisma/seed/index.ts",
     "db:studio": "prisma studio",
     "db:test": "dotenv -e .env.local -- node scripts/test-connection.mjs",
+    "db:upload-recitations": "dotenv -e .env.local -- node scripts/upload-recitations.mjs",
     "prepare": "husky"
   },
   "lint-staged": {
