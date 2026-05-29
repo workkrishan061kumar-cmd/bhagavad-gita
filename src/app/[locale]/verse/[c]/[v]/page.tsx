@@ -1,6 +1,13 @@
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { getNeighborVerses, getVerse, TranslationPicker, VerseAudioPlayer } from '@/features/verse';
+import {
+  getNeighborVerses,
+  getVerse,
+  RevealOnMount,
+  SanskritReveal,
+  TranslationPicker,
+  VerseAudioPlayer,
+} from '@/features/verse';
 import { Link } from '@/i18n/navigation';
 import { Mandala } from '@/shared/components/brand/Mandala';
 import { Container } from '@/shared/components/layout/Container';
@@ -101,7 +108,7 @@ export default async function VersePage({
 
       <main className="relative py-12 md:py-20">
         <div className="absolute inset-0 flex items-start justify-center pointer-events-none pt-20">
-          <Mandala seed={seed} size={620} className="text-gold-500/[0.05]" />
+          <Mandala seed={seed} size={620} className="text-gold-500/[0.05] animate-mandala-draw" />
         </div>
 
         <Container size="sm" className="relative z-10">
@@ -134,18 +141,23 @@ export default async function VersePage({
             </div>
           )}
 
-          {/* Sanskrit */}
-          <p className="font-sanskrit text-text-sanskrit text-2xl md:text-4xl text-center leading-relaxed text-sanskrit-glow whitespace-pre-line">
-            {data.sanskrit}
-          </p>
+          {/* Sanskrit — gentle blur-to-clear reveal */}
+          <SanskritReveal
+            text={data.sanskrit}
+            className="font-sanskrit text-text-sanskrit text-2xl md:text-4xl text-center leading-relaxed text-sanskrit-glow"
+          />
 
           {/* Divider */}
-          <div className="my-10 h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent" />
+          <RevealOnMount delay={400}>
+            <div className="my-10 h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent" />
+          </RevealOnMount>
 
           {/* Transliteration */}
-          <p className="text-text-muted italic text-center text-sm md:text-base whitespace-pre-line">
-            {data.transliteration}
-          </p>
+          <RevealOnMount delay={500}>
+            <p className="text-text-muted italic text-center text-sm md:text-base whitespace-pre-line">
+              {data.transliteration}
+            </p>
+          </RevealOnMount>
 
           {/* Translation picker + selected translation */}
           {availableLanguages.length > 0 && (

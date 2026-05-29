@@ -1,3 +1,5 @@
+export { RevealOnMount } from './components/RevealOnMount';
+export { SanskritReveal } from './components/SanskritReveal';
 export { TranslationPicker } from './components/TranslationPicker';
 export { VerseAudioPlayer } from './components/VerseAudioPlayer';
 export {

@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getChapter } from '@/features/chapter';
 import { getVersesInChapter } from '@/features/verse';
 import { Link } from '@/i18n/navigation';
-import { Mandala } from '@/shared/components/brand/Mandala';
+import { SharedMandala } from '@/shared/components/brand/SharedMandala';
 import { Container } from '@/shared/components/layout/Container';
 import { Nav } from '@/shared/components/layout/Nav';
 
@@ -40,7 +40,12 @@ export default async function ChapterPage({ params }: { params: Params }) {
 
           {/* Hero */}
           <div className="mt-10 grid md:grid-cols-[auto_1fr] gap-8 items-center">
-            <Mandala seed={chapter.number} size={200} className="text-gold-500/40" />
+            <SharedMandala
+              seed={chapter.number}
+              size={200}
+              className="text-gold-500/40"
+              morphName={`mandala-ch-${chapter.number}`}
+            />
             <div>
               <p className="text-gold-500 uppercase tracking-[0.25em] text-xs mb-3">
                 {t('chapterLabel', { n: chapter.number })}
