@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getChapter } from '@/features/chapter';
@@ -8,6 +9,41 @@ import { Container } from '@/shared/components/layout/Container';
 import { Nav } from '@/shared/components/layout/Nav';
 
 type Params = Promise<{ locale: string; n: string }>;
+
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const { locale, n } = await params;
+  const number = Number.parseInt(n, 10);
+  if (Number.isNaN(number)) return {};
+
+  const chapter = await getChapter(number);
+  if (!chapter) return {};
+
+  const summary = locale === 'hi' && chapter.summaryHi ? chapter.summaryHi : chapter.summary;
+  const description = summary.slice(0, 160);
+
+  const titleEn = `Chapter ${number}: ${chapter.titleEn} · Bhagavad Gita`;
+  const titleHi = `अध्याय ${number}: ${chapter.titleSa} · भगवद्गीता`;
+
+  const path = `/chapter/${number}`;
+  return {
+    title: locale === 'hi' ? titleHi : titleEn,
+    description,
+    alternates: {
+      canonical: locale === 'en' ? path : `/${locale}${path}`,
+      languages: {
+        en: path,
+        hi: `/hi${path}`,
+        'x-default': path,
+      },
+    },
+    openGraph: {
+      title: locale === 'hi' ? titleHi : titleEn,
+      description,
+      type: 'article',
+      locale: locale === 'hi' ? 'hi_IN' : 'en_US',
+    },
+  };
+}
 
 export default async function ChapterPage({ params }: { params: Params }) {
   const { locale, n } = await params;

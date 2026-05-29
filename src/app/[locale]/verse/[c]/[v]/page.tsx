@@ -1,5 +1,7 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { getChapter } from '@/features/chapter';
 import {
   getNeighborVerses,
   getVerse,
@@ -17,6 +19,43 @@ type Params = Promise<{ locale: string; c: string; v: string }>;
 type SearchParams = Promise<{ lang?: string; author?: string }>;
 
 const DEFAULT_LANG = 'en';
+
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const { locale, c, v } = await params;
+  const chapter = Number.parseInt(c, 10);
+  const verse = Number.parseInt(v, 10);
+  if (Number.isNaN(chapter) || Number.isNaN(verse)) return {};
+
+  const data = await getVerse({ chapter, verse });
+  if (!data) return {};
+
+  const lang = locale === 'hi' ? 'hi' : 'en';
+  const featured = data.translations.find((t) => t.language.code === lang && t.isFeatured);
+  const description = featured?.text.slice(0, 160) ?? data.transliteration.split('\n')[0];
+
+  const titleEn = `Bhagavad Gita ${chapter}.${verse} · ${data.chapter.titleEn}`;
+  const titleHi = `भगवद्गीता ${chapter}.${verse} · ${data.chapter.titleSa}`;
+
+  const path = `/verse/${chapter}/${verse}`;
+  return {
+    title: locale === 'hi' ? titleHi : titleEn,
+    description,
+    alternates: {
+      canonical: locale === 'en' ? path : `/${locale}${path}`,
+      languages: {
+        en: path,
+        hi: `/hi${path}`,
+        'x-default': path,
+      },
+    },
+    openGraph: {
+      title: locale === 'hi' ? titleHi : titleEn,
+      description,
+      type: 'article',
+      locale: locale === 'hi' ? 'hi_IN' : 'en_US',
+    },
+  };
+}
 
 export default async function VersePage({
   params,
