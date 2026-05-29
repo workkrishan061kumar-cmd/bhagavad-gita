@@ -1,61 +1,12 @@
-import { Analytics } from '@vercel/analytics/next';
-import type { Metadata, Viewport } from 'next';
-import { Inter, Playfair_Display, Tiro_Devanagari_Sanskrit } from 'next/font/google';
+// Minimal root layout. The real layout (html, body, fonts, providers) is in
+// src/app/[locale]/layout.tsx since every visible route lives under [locale]
+// via next-intl middleware.
+//
+// This file is still required by Next.js because not-found.tsx and other
+// fallback files at root need a layout to render into.
+
 import './globals.css';
 
-const inter = Inter({
-  variable: '--font-inter',
-  subsets: ['latin'],
-  display: 'swap',
-});
-
-const playfair = Playfair_Display({
-  variable: '--font-playfair',
-  subsets: ['latin'],
-  display: 'swap',
-});
-
-const tiro = Tiro_Devanagari_Sanskrit({
-  variable: '--font-tiro',
-  weight: '400',
-  subsets: ['devanagari', 'latin'],
-  display: 'swap',
-});
-
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
-  title: {
-    default: 'Gita-Verse — Ancient wisdom. Daily guidance.',
-    template: '%s · Gita-Verse',
-  },
-  description:
-    'Read all 700 verses of the Bhagavad Gita with translations, commentaries, and AI-powered guidance for daily life.',
-  keywords: ['Bhagavad Gita', 'Sanskrit', 'spirituality', 'meditation', 'Krishna', 'verses'],
-  openGraph: {
-    type: 'website',
-    siteName: 'Gita-Verse',
-    title: 'Gita-Verse — Ancient wisdom. Daily guidance.',
-  },
-};
-
-export const viewport: Viewport = {
-  themeColor: '#0B0F1A',
-  colorScheme: 'dark',
-  width: 'device-width',
-  initialScale: 1,
-};
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${playfair.variable} ${tiro.variable}`}
-      suppressHydrationWarning
-    >
-      <body className="min-h-dvh font-body antialiased">
-        {children}
-        <Analytics />
-      </body>
-    </html>
-  );
+  return children;
 }
