@@ -1,8 +1,8 @@
 import Link from 'next/link';
+import { getAllChapters } from '@/features/chapter';
 import { Mandala } from '@/shared/components/brand/Mandala';
 import { Container } from '@/shared/components/layout/Container';
 import { Nav } from '@/shared/components/layout/Nav';
-import { mockChapters } from '@/shared/data/mock-verses';
 
 const romans = [
   'I',
@@ -25,7 +25,9 @@ const romans = [
   'XVIII',
 ];
 
-export default function ChaptersPage() {
+export default async function ChaptersPage() {
+  const chapters = await getAllChapters();
+
   return (
     <>
       <Nav />
@@ -38,11 +40,13 @@ export default function ChaptersPage() {
             <h1 className="font-display text-4xl md:text-5xl text-text-primary mb-3">
               The Eighteen Chapters
             </h1>
-            <p className="text-text-muted">700 verses, one timeless conversation.</p>
+            <p className="text-text-muted">
+              {chapters.reduce((n, ch) => n + ch.verseCount, 0)} verses, one timeless conversation.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {mockChapters.map((ch, i) => (
+            {chapters.map((ch, i) => (
               <Link
                 key={ch.number}
                 href={`/chapter/${ch.number}`}

@@ -52,7 +52,10 @@ async function ensureBucket() {
     return;
   }
   const errText = await create.text();
-  if (errText.toLowerCase().includes('already exists') || errText.toLowerCase().includes('duplicate')) {
+  if (
+    errText.toLowerCase().includes('already exists') ||
+    errText.toLowerCase().includes('duplicate')
+  ) {
     console.log(`✓ Bucket '${BUCKET}' already exists`);
     return;
   }

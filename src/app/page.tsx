@@ -1,8 +1,9 @@
 import Link from 'next/link';
+import { getAllChapters } from '@/features/chapter';
+import { getVerse } from '@/features/verse';
 import { Mandala } from '@/shared/components/brand/Mandala';
 import { Container } from '@/shared/components/layout/Container';
 import { Nav } from '@/shared/components/layout/Nav';
-import { mockChapters, mockVerses } from '@/shared/data/mock-verses';
 
 const moods = [
   { key: 'anxious', label: 'Anxious' },
@@ -42,9 +43,14 @@ const features = [
   },
 ];
 
-export default function Home() {
-  const sample = mockVerses['2.47'];
+export default async function Home() {
+  const [sample, chapters] = await Promise.all([
+    getVerse({ chapter: 2, verse: 47 }),
+    getAllChapters(),
+  ]);
   if (!sample) return null;
+
+  const featuredEn = sample.translations.find((t) => t.language.code === 'en' && t.isFeatured);
 
   return (
     <>
@@ -54,7 +60,7 @@ export default function Home() {
         {/* HERO */}
         <section className="relative min-h-[88dvh] flex items-center overflow-hidden">
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <Mandala seed={247} size={760} className="text-gold-500/[0.06]" />
+            <Mandala seed={2047} size={760} className="text-gold-500/[0.06]" />
           </div>
 
           <Container
@@ -97,20 +103,21 @@ export default function Home() {
             <div className="hidden md:flex justify-end">
               <div className="relative p-8 rounded-2xl bg-bg-surface/80 border border-gold-500/20 glow-gold backdrop-blur-sm max-w-sm">
                 <div className="absolute -top-3 left-6 px-3 py-0.5 rounded-full bg-gold-500 text-bg-base text-xs font-medium">
-                  Chapter 2 · Verse 47
+                  Chapter {sample.chapter.number} · Verse {sample.number}
                 </div>
                 <div className="space-y-4 pt-2">
                   <p className="font-sanskrit text-text-sanskrit text-lg leading-relaxed whitespace-pre-line">
                     {sample.sanskrit}
                   </p>
                   <div className="h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
-                  <p className="text-text-muted text-sm italic">
-                    {sample.transliteration.split('|')[0]}
+                  <p className="text-text-muted text-sm italic line-clamp-2">
+                    {sample.transliteration.split('\n')[0]}
                   </p>
-                  <p className="font-display text-text-primary leading-relaxed">
-                    You have a right to perform your prescribed duty, but you are not entitled to
-                    the fruits of your action.
-                  </p>
+                  {featuredEn && (
+                    <p className="font-display text-text-primary leading-relaxed line-clamp-3">
+                      {featuredEn.text}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
@@ -183,7 +190,7 @@ export default function Home() {
               </Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {mockChapters.slice(0, 6).map((ch) => (
+              {chapters.slice(0, 6).map((ch) => (
                 <Link
                   key={ch.number}
                   href={`/chapter/${ch.number}`}

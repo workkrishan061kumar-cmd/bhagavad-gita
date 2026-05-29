@@ -1,18 +1,28 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { getNeighborVerses, getVerse } from '@/features/verse';
 import { Mandala } from '@/shared/components/brand/Mandala';
 import { Container } from '@/shared/components/layout/Container';
 import { Nav } from '@/shared/components/layout/Nav';
-import { mockVerses } from '@/shared/data/mock-verses';
 
 type Params = Promise<{ c: string; v: string }>;
 
 export default async function VersePage({ params }: { params: Params }) {
   const { c, v } = await params;
-  const verse = mockVerses[`${c}.${v}`];
-  if (!verse) return notFound();
+  const chapter = Number.parseInt(c, 10);
+  const verse = Number.parseInt(v, 10);
+  if (Number.isNaN(chapter) || Number.isNaN(verse)) return notFound();
 
-  const seed = Number.parseInt(c, 10) * 1000 + Number.parseInt(v, 10);
+  const [data, neighbors] = await Promise.all([
+    getVerse({ chapter, verse }),
+    getNeighborVerses({ chapter, verse }),
+  ]);
+  if (!data) return notFound();
+
+  const featuredEn = data.translations.find((t) => t.language.code === 'en' && t.isFeatured);
+  const featuredHi = data.translations.find((t) => t.language.code === 'hi' && t.isFeatured);
+
+  const seed = chapter * 1000 + verse;
 
   return (
     <>
@@ -27,69 +37,92 @@ export default async function VersePage({ params }: { params: Params }) {
           {/* Breadcrumb / position */}
           <div className="flex items-center justify-between mb-10 text-sm">
             <Link
-              href={`/chapter/${verse.chapter}`}
+              href={`/chapter/${chapter}`}
               className="text-text-muted hover:text-gold-500 transition-colors"
             >
-              ← Chapter {verse.chapter}
+              ← Chapter {chapter}
             </Link>
-            <div className="text-gold-500/70 font-mono">{verse.verse} / 72</div>
+            <div className="text-gold-500/70 font-mono">
+              {verse} / {data.chapter.verseCount}
+            </div>
           </div>
 
           {/* Verse marker */}
           <p className="text-center text-gold-500 text-xs uppercase tracking-[0.3em] mb-10">
-            · Chapter {verse.chapter} · Verse {verse.verse} ·
+            · Chapter {chapter} · Verse {verse} ·
           </p>
 
           {/* Sanskrit */}
           <p className="font-sanskrit text-text-sanskrit text-2xl md:text-4xl text-center leading-relaxed text-sanskrit-glow whitespace-pre-line">
-            {verse.sanskrit}
+            {data.sanskrit}
           </p>
 
           {/* Divider */}
           <div className="my-10 h-px bg-gradient-to-r from-transparent via-gold-500/40 to-transparent" />
 
           {/* Transliteration */}
-          <p className="text-text-muted italic text-center text-sm md:text-base">
-            {verse.transliteration}
+          <p className="text-text-muted italic text-center text-sm md:text-base whitespace-pre-line">
+            {data.transliteration}
           </p>
 
-          {/* Translation */}
-          <p className="font-display text-text-primary text-lg md:text-xl leading-relaxed text-center mt-8">
-            {verse.english}
-          </p>
-
-          {/* Tabs */}
-          <div className="mt-14 border-b border-gold-500/20 flex gap-6 justify-center text-sm">
-            {['Translation', 'Word-by-word', 'Commentary', 'Reflect'].map((tab, i) => (
-              <button
-                key={tab}
-                type="button"
-                className={
-                  i === 0
-                    ? 'pb-3 text-gold-500 border-b-2 border-gold-500'
-                    : 'pb-3 text-text-muted hover:text-text-primary transition-colors'
-                }
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab content */}
-          <div className="mt-8 text-text-secondary leading-relaxed">
-            <p>{verse.english}</p>
-            <div className="mt-6 flex flex-wrap gap-2">
-              {verse.themes.map((theme) => (
-                <Link
-                  key={theme}
-                  href={`/themes/${theme}`}
-                  className="px-3 py-1 text-xs rounded-full border border-gold-500/30 text-gold-500 hover:bg-gold-500/10"
-                >
-                  {theme}
-                </Link>
-              ))}
+          {/* English featured translation */}
+          {featuredEn && (
+            <div className="mt-10">
+              <p className="text-gold-500/60 text-xs uppercase tracking-[0.2em] text-center mb-3">
+                {featuredEn.author.name} — English
+              </p>
+              <p className="font-display text-text-primary text-lg md:text-xl leading-relaxed text-center">
+                {featuredEn.text}
+              </p>
             </div>
-          </div>
+          )}
+
+          {/* Hindi featured translation */}
+          {featuredHi && (
+            <div className="mt-8">
+              <p className="text-gold-500/60 text-xs uppercase tracking-[0.2em] text-center mb-3">
+                {featuredHi.author.name} — हिन्दी
+              </p>
+              <p className="font-display text-text-primary text-base md:text-lg leading-relaxed text-center">
+                {featuredHi.text}
+              </p>
+            </div>
+          )}
+
+          {/* Word meanings */}
+          {data.wordMeanings && (
+            <details className="mt-10 group">
+              <summary className="cursor-pointer text-gold-500 text-xs uppercase tracking-[0.2em] text-center hover:text-gold-300 transition-colors">
+                Word-by-word →
+              </summary>
+              <p className="mt-4 text-text-secondary text-sm leading-relaxed">
+                {data.wordMeanings}
+              </p>
+            </details>
+          )}
+
+          {/* All translations */}
+          {data.translations.length > 1 && (
+            <details className="mt-6 group">
+              <summary className="cursor-pointer text-gold-500 text-xs uppercase tracking-[0.2em] text-center hover:text-gold-300 transition-colors">
+                {data.translations.length} translations available →
+              </summary>
+              <div className="mt-6 space-y-5">
+                {data.translations.map((t) => (
+                  <div
+                    key={t.id}
+                    className="p-4 rounded-xl bg-bg-surface/40 border border-gold-500/10"
+                  >
+                    <p className="text-gold-500/70 text-xs mb-1">
+                      {t.author.name} · {t.language.nativeName}
+                      {t.isFeatured && ' · featured'}
+                    </p>
+                    <p className="text-text-secondary text-sm leading-relaxed">{t.text}</p>
+                  </div>
+                ))}
+              </div>
+            </details>
+          )}
 
           {/* Actions */}
           <div className="mt-12 flex items-center justify-center gap-3">
@@ -115,18 +148,31 @@ export default async function VersePage({ params }: { params: Params }) {
 
           {/* Footer nav */}
           <div className="mt-16 flex items-center justify-between text-sm">
-            <Link
-              href={`/verse/${verse.chapter}/${verse.verse - 1}`}
-              className="px-4 py-2 rounded-full text-text-muted hover:text-gold-500 transition-colors"
-            >
-              ← Verse {verse.verse - 1}
-            </Link>
-            <Link
-              href={`/verse/${verse.chapter}/${verse.verse + 1}`}
-              className="px-4 py-2 rounded-full text-text-muted hover:text-gold-500 transition-colors"
-            >
-              Verse {verse.verse + 1} →
-            </Link>
+            {neighbors.prev ? (
+              <Link
+                href={`/verse/${chapter}/${neighbors.prev}`}
+                className="px-4 py-2 rounded-full text-text-muted hover:text-gold-500 transition-colors"
+              >
+                ← Verse {neighbors.prev}
+              </Link>
+            ) : (
+              <span />
+            )}
+            {neighbors.next ? (
+              <Link
+                href={`/verse/${chapter}/${neighbors.next}`}
+                className="px-4 py-2 rounded-full text-text-muted hover:text-gold-500 transition-colors"
+              >
+                Verse {neighbors.next} →
+              </Link>
+            ) : (
+              <Link
+                href={`/chapter/${chapter + 1}`}
+                className="px-4 py-2 rounded-full text-text-muted hover:text-gold-500 transition-colors"
+              >
+                Next chapter →
+              </Link>
+            )}
           </div>
 
           {/* Anon CTA */}
