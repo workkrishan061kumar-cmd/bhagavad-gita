@@ -1,5 +1,6 @@
-import Link from 'next/link';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAllChapters } from '@/features/chapter';
+import { Link } from '@/i18n/navigation';
 import { Mandala } from '@/shared/components/brand/Mandala';
 import { Container } from '@/shared/components/layout/Container';
 import { Nav } from '@/shared/components/layout/Nav';
@@ -25,8 +26,20 @@ const romans = [
   'XVIII',
 ];
 
-export default async function ChaptersPage() {
-  const chapters = await getAllChapters();
+type Props = {
+  params: Promise<{ locale: string }>;
+};
+
+export default async function ChaptersPage({ params }: Props) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  const [chapters, t, tChapter] = await Promise.all([
+    getAllChapters(),
+    getTranslations('chapters'),
+    getTranslations('chapter'),
+  ]);
+  const totalVerses = chapters.reduce((n, ch) => n + ch.verseCount, 0);
 
   return (
     <>
@@ -34,15 +47,11 @@ export default async function ChaptersPage() {
       <main className="py-12 md:py-20">
         <Container size="lg">
           <div className="text-center mb-14">
-            <p className="text-gold-500 uppercase tracking-[0.3em] text-xs mb-3">
-              Eighteen chapters
-            </p>
+            <p className="text-gold-500 uppercase tracking-[0.3em] text-xs mb-3">{t('kicker')}</p>
             <h1 className="font-display text-4xl md:text-5xl text-text-primary mb-3">
-              The Eighteen Chapters
+              {t('heading')}
             </h1>
-            <p className="text-text-muted">
-              {chapters.reduce((n, ch) => n + ch.verseCount, 0)} verses, one timeless conversation.
-            </p>
+            <p className="text-text-muted">{t('summary', { count: totalVerses })}</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -66,7 +75,9 @@ export default async function ChaptersPage() {
                       {ch.titleSa}
                     </p>
                     <p className="font-display text-text-primary text-sm">{ch.titleEn}</p>
-                    <p className="text-text-muted text-xs mt-2">{ch.verseCount} verses</p>
+                    <p className="text-text-muted text-xs mt-2">
+                      {tChapter('verseCount', { count: ch.verseCount })}
+                    </p>
                   </div>
                 </div>
               </Link>

@@ -1,11 +1,12 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getNeighborVerses, getVerse, TranslationPicker, VerseAudioPlayer } from '@/features/verse';
+import { Link } from '@/i18n/navigation';
 import { Mandala } from '@/shared/components/brand/Mandala';
 import { Container } from '@/shared/components/layout/Container';
 import { Nav } from '@/shared/components/layout/Nav';
 
-type Params = Promise<{ c: string; v: string }>;
+type Params = Promise<{ locale: string; c: string; v: string }>;
 type SearchParams = Promise<{ lang?: string; author?: string }>;
 
 const DEFAULT_LANG = 'en';
@@ -17,15 +18,17 @@ export default async function VersePage({
   params: Params;
   searchParams: SearchParams;
 }) {
-  const { c, v } = await params;
+  const { locale, c, v } = await params;
+  setRequestLocale(locale);
   const { lang: langParam, author: authorParam } = await searchParams;
   const chapter = Number.parseInt(c, 10);
   const verse = Number.parseInt(v, 10);
   if (Number.isNaN(chapter) || Number.isNaN(verse)) return notFound();
 
-  const [data, neighbors] = await Promise.all([
+  const [data, neighbors, tVerse] = await Promise.all([
     getVerse({ chapter, verse }),
     getNeighborVerses({ chapter, verse }),
+    getTranslations('verse'),
   ]);
   if (!data) return notFound();
 
@@ -69,7 +72,14 @@ export default async function VersePage({
   }
 
   // Resolve current selection.
-  const currentLang = (langParam && languageMap.has(langParam) ? langParam : null) ?? DEFAULT_LANG;
+  // Default to user's UI locale if available for this verse, else 'en'.
+  const initialLang =
+    langParam && languageMap.has(langParam)
+      ? langParam
+      : languageMap.has(locale)
+        ? locale
+        : DEFAULT_LANG;
+  const currentLang = initialLang;
   const featuredForLang = featuredAuthorByLang[currentLang];
   const candidateAuthors = availableAuthorsByLang[currentLang] ?? [];
   const currentAuthor =
@@ -101,7 +111,7 @@ export default async function VersePage({
               href={`/chapter/${chapter}`}
               className="text-text-muted hover:text-gold-500 transition-colors"
             >
-              ← Chapter {chapter}
+              {tVerse('backToChapter', { n: chapter })}
             </Link>
             <div className="text-gold-500/70 font-mono">
               {verse} / {data.chapter.verseCount}
@@ -110,7 +120,7 @@ export default async function VersePage({
 
           {/* Verse marker */}
           <p className="text-center text-gold-500 text-xs uppercase tracking-[0.3em] mb-8">
-            · Chapter {chapter} · Verse {verse} ·
+            {tVerse('marker', { c: chapter, v: verse })}
           </p>
 
           {/* Audio recitation */}
@@ -162,7 +172,7 @@ export default async function VersePage({
                 </p>
               ) : (
                 <p className="text-text-muted text-sm text-center italic">
-                  No translation available for the selected combination.
+                  {tVerse('noTranslation')}
                 </p>
               )}
             </div>
@@ -172,7 +182,7 @@ export default async function VersePage({
           {data.wordMeanings && (
             <details className="mt-10 group">
               <summary className="cursor-pointer text-gold-500 text-xs uppercase tracking-[0.2em] text-center hover:text-gold-300 transition-colors">
-                Word-by-word →
+                {tVerse('wordByWord')}
               </summary>
               <p className="mt-4 text-text-secondary text-sm leading-relaxed">
                 {data.wordMeanings}
@@ -184,7 +194,7 @@ export default async function VersePage({
           {data.translations.length > 1 && (
             <details className="mt-6 group">
               <summary className="cursor-pointer text-gold-500 text-xs uppercase tracking-[0.2em] text-center hover:text-gold-300 transition-colors">
-                See all {data.translations.length} translations →
+                {tVerse('seeAllTranslations', { count: data.translations.length })}
               </summary>
               <div className="mt-6 space-y-5">
                 {data.translations.map((t) => {
@@ -201,8 +211,8 @@ export default async function VersePage({
                     >
                       <p className="text-gold-500/70 text-xs mb-1">
                         {t.author.name} · {t.language.nativeName}
-                        {t.isFeatured && ' · featured'}
-                        {isCurrent && ' · selected'}
+                        {t.isFeatured && ` · ${tVerse('featured')}`}
+                        {isCurrent && ` · ${tVerse('selected')}`}
                       </p>
                       <p className="text-text-secondary text-sm leading-relaxed">{t.text}</p>
                     </div>
@@ -218,19 +228,19 @@ export default async function VersePage({
               type="button"
               className="px-5 py-2.5 rounded-full border border-gold-500/40 text-gold-500 text-sm hover:bg-gold-500/10 transition-colors"
             >
-              ♡ Bookmark
+              {tVerse('bookmark')}
             </button>
             <button
               type="button"
               className="px-5 py-2.5 rounded-full border border-gold-500/40 text-gold-500 text-sm hover:bg-gold-500/10 transition-colors"
             >
-              ↗ Share
+              {tVerse('share')}
             </button>
             <button
               type="button"
               className="px-5 py-2.5 rounded-full border border-gold-500/40 text-gold-500 text-sm hover:bg-gold-500/10 transition-colors"
             >
-              ✎ Journal
+              {tVerse('journal')}
             </button>
           </div>
 
@@ -241,7 +251,7 @@ export default async function VersePage({
                 href={`/verse/${chapter}/${neighbors.prev}`}
                 className="px-4 py-2 rounded-full text-text-muted hover:text-gold-500 transition-colors"
               >
-                ← Verse {neighbors.prev}
+                {tVerse('previousVerse', { n: neighbors.prev })}
               </Link>
             ) : (
               <span />
@@ -251,22 +261,20 @@ export default async function VersePage({
                 href={`/verse/${chapter}/${neighbors.next}`}
                 className="px-4 py-2 rounded-full text-text-muted hover:text-gold-500 transition-colors"
               >
-                Verse {neighbors.next} →
+                {tVerse('nextVerse', { n: neighbors.next })}
               </Link>
             ) : (
               <Link
                 href={`/chapter/${chapter + 1}`}
                 className="px-4 py-2 rounded-full text-text-muted hover:text-gold-500 transition-colors"
               >
-                Next chapter →
+                {tVerse('nextChapter')}
               </Link>
             )}
           </div>
 
           {/* Anon CTA */}
-          <p className="mt-16 text-center text-xs text-text-muted/60">
-            Sign in to bookmark and reflect on this verse.
-          </p>
+          <p className="mt-16 text-center text-xs text-text-muted/60">{tVerse('signInNudge')}</p>
         </Container>
       </main>
     </>

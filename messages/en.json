@@ -1,1 +1,103 @@
-{}
+{
+  "nav": {
+    "chapters": "Chapters",
+    "ask": "Ask Krishna",
+    "daily": "Daily Verse",
+    "library": "Library",
+    "signIn": "Sign in",
+    "switchLanguage": "Switch language"
+  },
+  "home": {
+    "kicker": "Wisdom for modern life",
+    "tagline1": "Ancient wisdom.",
+    "tagline2": "Daily guidance.",
+    "description": "Read all 700 verses. Ask Krishna for guidance. Reflect on what speaks to you. Free, no ads, no paywall — ever.",
+    "ctaPrimary": "Start Reading",
+    "ctaSecondary": "Ask Krishna →",
+    "todayKicker": "Today",
+    "moodQuestion": "How are you feeling?",
+    "featuresHeading": "Six ways the Gita meets you",
+    "featuresSubheading": "Built to honour the text — and serve the person reading it.",
+    "chaptersKicker": "Eighteen chapters",
+    "chaptersHeading": "700 verses, one conversation",
+    "chaptersExploreAll": "Explore all →",
+    "challengeKicker": "The 18-day challenge",
+    "challengeHeading1": "One chapter a day.",
+    "challengeHeading2": "Complete the Gita in 18 days.",
+    "challengeCta": "Start the journey",
+    "footerTagline": "Built with devotion. Free, no ads, no paywall."
+  },
+  "moods": {
+    "anxious": "Anxious",
+    "grateful": "Grateful",
+    "confused": "Confused",
+    "motivated": "Motivated",
+    "grieving": "Grieving",
+    "angry": "Angry",
+    "peaceful": "Peaceful",
+    "lost": "Lost"
+  },
+  "features": {
+    "readTitle": "Read all 700 verses",
+    "readDesc": "Sanskrit, transliteration, translation, commentary — every verse, every chapter.",
+    "askTitle": "Ask Krishna",
+    "askDesc": "Type a worry. Receive verses that speak to it. Free guidance, always.",
+    "dailyTitle": "Daily verse, your mood",
+    "dailyDesc": "8 moods, curated verses. A daily ritual that meets you where you are.",
+    "reflectTitle": "Reflect privately",
+    "reflectDesc": "A journal tied to verses. Watch your understanding deepen week by week.",
+    "shareTitle": "Share beautifully",
+    "shareDesc": "Every verse becomes a shareable card with a unique mandala.",
+    "whatsappTitle": "WhatsApp daily",
+    "whatsappDesc": "Receive a verse every morning on the platform you already check."
+  },
+  "footer": {
+    "about": "About",
+    "donate": "Donate",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "chapters": {
+    "kicker": "Eighteen chapters",
+    "heading": "The Eighteen Chapters",
+    "summary": "{count} verses, one timeless conversation."
+  },
+  "chapter": {
+    "backToAll": "← All chapters",
+    "chapterLabel": "Chapter {n}",
+    "verseCount": "{count} verses",
+    "startReading": "Start reading from verse 1",
+    "versesHeading": "Verses"
+  },
+  "verse": {
+    "backToChapter": "← Chapter {n}",
+    "marker": "· Chapter {c} · Verse {v} ·",
+    "translationLabel": "Translation",
+    "by": "by",
+    "wordByWord": "Word-by-word →",
+    "seeAllTranslations": "See all {count} translations →",
+    "featured": "featured",
+    "selected": "selected",
+    "noTranslation": "No translation available for the selected combination.",
+    "bookmark": "♡ Bookmark",
+    "share": "↗ Share",
+    "journal": "✎ Journal",
+    "previousVerse": "← Verse {n}",
+    "nextVerse": "Verse {n} →",
+    "nextChapter": "Next chapter →",
+    "signInNudge": "Sign in to bookmark and reflect on this verse."
+  },
+  "audio": {
+    "play": "Play recitation",
+    "pause": "Pause recitation",
+    "seek": "Seek",
+    "speed": "Playback speed: {rate}×",
+    "unavailable": "Audio currently unavailable"
+  },
+  "picker": {
+    "translation": "Translation",
+    "language": "Translation language",
+    "translator": "Translator",
+    "by": "by"
+  }
+}
