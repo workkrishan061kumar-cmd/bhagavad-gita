@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getSession } from '@/features/auth';
 import { countBookmarks } from '@/features/bookmark';
+import { countDaysJournaled, countJournalEntries } from '@/features/journal';
 import { getMostRecentVerse, getProgressStats } from '@/features/progress';
 import { StreakFlame } from '@/features/progress/components/StreakFlame';
 import { Link } from '@/i18n/navigation';
@@ -26,11 +27,13 @@ export default async function DashboardPage({ params }: { params: Params }) {
 
   const userId = session.user.id;
 
-  const [t, bookmarkCount, mostRecent, stats] = await Promise.all([
+  const [t, bookmarkCount, mostRecent, stats, journalCount, daysJournaled] = await Promise.all([
     getTranslations('me'),
     countBookmarks(userId),
     getMostRecentVerse(userId),
     getProgressStats(userId),
+    countJournalEntries(userId),
+    countDaysJournaled(userId),
   ]);
 
   const continueRef = mostRecent
@@ -129,7 +132,7 @@ export default async function DashboardPage({ params }: { params: Params }) {
               <p className="text-text-muted text-xs uppercase tracking-[0.2em] mb-3">
                 {t('recentReflections')}
               </p>
-              <p className="font-display text-3xl text-gold-300 mb-2">—</p>
+              <p className="font-display text-3xl text-gold-300 mb-2">{journalCount}</p>
               <p className="text-text-muted text-xs group-hover:text-gold-500 transition-colors">
                 {t('viewAll')}
               </p>
@@ -162,7 +165,7 @@ export default async function DashboardPage({ params }: { params: Params }) {
                 <p className="text-text-muted text-xs mt-1">{t('stats.longestStreak')}</p>
               </div>
               <div className="p-5 rounded-xl bg-bg-elevated/30 border border-gold-500/10 text-center">
-                <p className="font-display text-2xl text-gold-300">—</p>
+                <p className="font-display text-2xl text-gold-300">{daysJournaled}</p>
                 <p className="text-text-muted text-xs mt-1">{t('stats.daysJournaling')}</p>
               </div>
             </div>

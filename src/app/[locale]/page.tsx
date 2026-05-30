@@ -1,4 +1,3 @@
-import { useTranslations } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAllChapters } from '@/features/chapter';
 import { getVerse } from '@/features/verse';
@@ -28,10 +27,9 @@ export default async function Home({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [sample, chapters, t, tHome, tMoods, tFeatures, tFooter] = await Promise.all([
+  const [sample, chapters, tHome, tMoods, tFeatures, tFooter] = await Promise.all([
     getVerse({ chapter: 2, verse: 47 }),
     getAllChapters(),
-    getTranslations('home'),
     getTranslations('home'),
     getTranslations('moods'),
     getTranslations('features'),

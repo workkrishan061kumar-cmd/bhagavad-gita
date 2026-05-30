@@ -43,7 +43,8 @@
     "grieving": "शोकग्रस्त",
     "angry": "क्रुद्ध",
     "peaceful": "शांत",
-    "lost": "खोया हुआ"
+    "lost": "खोया हुआ",
+    "reflective": "चिंतनशील"
   },
   "features": {
     "readTitle": "सभी 700 श्लोक पढ़ें",
@@ -120,6 +121,33 @@
     "hint": "कम से कम 2 अक्षर या 2.47 जैसी श्लोक संख्या लिखें",
     "navigate": "नेविगेट",
     "select": "चुनें"
+  },
+  "journal": {
+    "heading": "चिंतन",
+    "groupToday": "आज",
+    "groupYesterday": "कल",
+    "groupThisWeek": "इस सप्ताह",
+    "groupEarlier": "पहले",
+    "verseLabel": "श्लोक {ref}",
+    "newEntry": "नया चिंतन",
+    "placeholder": "यह श्लोक आज आपसे क्या कह रहा है?",
+    "saving": "सहेजा जा रहा है…",
+    "savedJustNow": "अभी सहेजा गया",
+    "saveError": "सहेज नहीं सका। टाइप करते रहें, पुनः प्रयास होगा।",
+    "saveErrorWithReason": "सहेजना विफल: {reason}",
+    "delete": "हटाएं",
+    "cancel": "रद्द करें",
+    "deleteConfirm": "इस चिंतन को हटा दें? इसे वापस नहीं किया जा सकता।",
+    "backToAll": "← सभी चिंतन",
+    "reflectingOn": "श्लोक {ref} पर चिंतन",
+    "entryNumber": "प्रविष्टि #{id}",
+    "createdAt": "शुरू: {date}",
+    "emptyTitle": "अभी कोई चिंतन नहीं",
+    "emptyBody": "किसी श्लोक पर \"चिंतन\" दबाकर शुरू करें।",
+    "browseChapters": "अध्याय देखें →",
+    "newFromVerse": "इस श्लोक पर चिंतन →",
+    "newGenericTitle": "नया चिंतन",
+    "newGenericBody": "चिंतन के लिए एक श्लोक चुनें।"
   },
   "bookmarks": {
     "heading": "सहेजे गए श्लोक",

@@ -291,12 +291,16 @@ export default async function VersePage({
             >
               {tVerse('share')}
             </button>
-            <button
-              type="button"
+            <Link
+              href={
+                session?.user
+                  ? `/me/journal/new?c=${chapter}&v=${verse}`
+                  : `/auth?callbackUrl=${encodeURIComponent(`/me/journal/new?c=${chapter}&v=${verse}`)}`
+              }
               className="px-5 py-2.5 rounded-full border border-gold-500/40 text-gold-500 text-sm hover:bg-gold-500/10 transition-colors"
             >
               {tVerse('journal')}
-            </button>
+            </Link>
           </div>
 
           {/* Footer nav */}

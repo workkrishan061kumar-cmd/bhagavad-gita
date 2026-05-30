@@ -43,7 +43,8 @@
     "grieving": "Grieving",
     "angry": "Angry",
     "peaceful": "Peaceful",
-    "lost": "Lost"
+    "lost": "Lost",
+    "reflective": "Reflective"
   },
   "features": {
     "readTitle": "Read all 700 verses",
@@ -120,6 +121,33 @@
     "hint": "Type at least 2 characters or a verse reference like 2.47",
     "navigate": "navigate",
     "select": "select"
+  },
+  "journal": {
+    "heading": "Journal",
+    "groupToday": "Today",
+    "groupYesterday": "Yesterday",
+    "groupThisWeek": "This week",
+    "groupEarlier": "Earlier",
+    "verseLabel": "Verse {ref}",
+    "newEntry": "New entry",
+    "placeholder": "What is this verse asking of you today?",
+    "saving": "Saving…",
+    "savedJustNow": "Saved just now",
+    "saveError": "Couldn't save. Retrying when you keep typing.",
+    "saveErrorWithReason": "Save failed: {reason}",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "deleteConfirm": "Delete this reflection? This cannot be undone.",
+    "backToAll": "← All entries",
+    "reflectingOn": "Reflecting on Verse {ref}",
+    "entryNumber": "Entry #{id}",
+    "createdAt": "Started {date}",
+    "emptyTitle": "No reflections yet",
+    "emptyBody": "Open any verse and tap \"Journal\" to start a reflection.",
+    "browseChapters": "Browse chapters →",
+    "newFromVerse": "Reflect on this verse →",
+    "newGenericTitle": "New reflection",
+    "newGenericBody": "Pick a verse to reflect on."
   },
   "bookmarks": {
     "heading": "Saved verses",

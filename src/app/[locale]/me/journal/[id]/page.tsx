@@ -1,14 +1,39 @@
-import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { getSession } from '@/features/auth';
+import { getJournalEntry } from '@/features/journal';
+import { JournalEditor } from '@/features/journal/components/JournalEditor';
+import { Link } from '@/i18n/navigation';
 import { Container } from '@/shared/components/layout/Container';
 import { Nav } from '@/shared/components/layout/Nav';
-import { mockVerses } from '@/shared/data/mock-verses';
 
-type Params = Promise<{ id: string }>;
+type Params = Promise<{ locale: string; id: string }>;
 
 export default async function JournalEntryPage({ params }: { params: Params }) {
-  const { id } = await params;
-  const verse = mockVerses['2.47'];
-  if (!verse) return null;
+  const { locale, id } = await params;
+  setRequestLocale(locale);
+
+  const numericId = Number.parseInt(id, 10);
+  if (Number.isNaN(numericId)) return notFound();
+
+  const session = await getSession();
+  if (!session?.user) return null;
+
+  const [t, entry] = await Promise.all([
+    getTranslations('journal'),
+    getJournalEntry({ userId: session.user.id, id: numericId }),
+  ]);
+  if (!entry) return notFound();
+
+  const chapter = entry.verse.chapter.number;
+  const verse = entry.verse.number;
+  const featuredTranslation = entry.verse.translations[0]?.text;
+  const createdAt = entry.createdAt.toLocaleDateString(locale === 'hi' ? 'hi-IN' : 'en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 
   return (
     <>
@@ -19,54 +44,46 @@ export default async function JournalEntryPage({ params }: { params: Params }) {
             href="/me/journal"
             className="text-sm text-text-muted hover:text-gold-500 transition-colors"
           >
-            ← All entries
+            {t('backToAll')}
           </Link>
 
-          {/* Verse this reflects on */}
+          {/* Verse this entry reflects on */}
           <details className="mt-8 p-5 rounded-xl bg-bg-surface/60 border border-gold-500/10" open>
             <summary className="cursor-pointer text-gold-500 text-sm font-mono">
-              Reflecting on Verse {verse.chapter}.{verse.verse}
+              {t('reflectingOn', { ref: `${chapter}.${verse}` })}
             </summary>
             <div className="mt-4 space-y-3">
               <p className="font-sanskrit text-text-sanskrit text-base">
-                {verse.sanskrit.split('\n')[0]}
+                {entry.verse.sanskrit.split('\n')[0]}
               </p>
-              <p className="text-text-secondary text-sm italic">{verse.english}</p>
+              {featuredTranslation ? (
+                <p className="text-text-secondary text-sm italic">{featuredTranslation}</p>
+              ) : null}
+              <Link
+                href={`/verse/${chapter}/${verse}`}
+                className="inline-block text-gold-500 hover:text-gold-300 text-xs transition-colors"
+              >
+                {`${entry.verse.chapter.titleEn} →`}
+              </Link>
             </div>
           </details>
 
-          {/* Date + mood */}
-          <div className="flex items-center gap-3 mt-8 mb-4 text-sm">
-            <span className="text-text-muted">Entry #{id} · Today, 8:42 AM</span>
-            <div className="flex gap-1">
-              {['reflective', 'grateful'].map((m) => (
-                <span
-                  key={m}
-                  className="px-2 py-0.5 rounded-full bg-gold-500/10 text-gold-300 text-xs"
-                >
-                  {m}
-                </span>
-              ))}
-            </div>
+          {/* Header line */}
+          <div className="flex items-center gap-3 mt-8 mb-2 text-xs text-text-muted">
+            <span>{t('entryNumber', { id: entry.id })}</span>
+            <span aria-hidden="true">·</span>
+            <span>{t('createdAt', { date: createdAt })}</span>
           </div>
 
           {/* Editor */}
-          <textarea
-            rows={14}
-            defaultValue={
-              "Reading this again, I noticed something — the verse isn't about giving up on outcomes, it's about not letting them own you. There's a difference between caring about results and being controlled by them.\n\nToday I'm going to try the second."
-            }
-            className="w-full bg-transparent border-none outline-none font-display text-text-primary text-lg leading-relaxed resize-none focus:outline-none placeholder:text-text-muted/40"
-            placeholder="Write a reflection…"
+          <JournalEditor
+            mode="existing"
+            entryId={entry.id}
+            chapter={chapter}
+            verse={verse}
+            initialContent={entry.content}
+            initialMood={entry.mood}
           />
-
-          {/* Status */}
-          <div className="mt-6 flex items-center justify-between text-text-muted/70 text-xs">
-            <p>Saved 2 minutes ago</p>
-            <button type="button" className="hover:text-red-400 transition-colors">
-              Delete
-            </button>
-          </div>
         </Container>
       </main>
     </>
