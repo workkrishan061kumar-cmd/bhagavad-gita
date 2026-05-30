@@ -87,7 +87,8 @@
     "featured": "featured",
     "selected": "selected",
     "noTranslation": "No translation available for the selected combination.",
-    "bookmark": "♡ Bookmark",
+    "bookmark": "Bookmark",
+    "bookmarked": "Bookmarked",
     "share": "↗ Share",
     "journal": "✎ Journal",
     "previousVerse": "← Verse {n}",
@@ -119,6 +120,40 @@
     "hint": "Type at least 2 characters or a verse reference like 2.47",
     "navigate": "navigate",
     "select": "select"
+  },
+  "bookmarks": {
+    "heading": "Saved verses",
+    "countLabel": "{count, plural, =0 {No verses} =1 {1 verse} other {# verses}}",
+    "emptyTitle": "No bookmarks yet",
+    "emptyBody": "Tap the heart on any verse to save it for later.",
+    "browse": "Browse chapters →",
+    "remove": "Remove bookmark",
+    "savedAgo": "Saved {ago}",
+    "ago_today": "today",
+    "ago_yesterday": "yesterday",
+    "ago_days": "{count} days ago",
+    "ago_weeks": "{count} weeks ago"
+  },
+  "me": {
+    "greeting": "Namaste, {name}",
+    "streakLabel": "{count}-day streak",
+    "continueReading": "Continue reading",
+    "continueReadingEmpty": "Pick a verse to begin your journey.",
+    "continueReadingCta": "Pick up where you left off →",
+    "browseChapters": "Browse all chapters →",
+    "todayMood": "Today's mood",
+    "todayMoodBody": "Pick a feeling. We'll find a verse for it.",
+    "chooseMood": "Choose mood →",
+    "recentBookmarks": "Recent bookmarks",
+    "recentReflections": "Recent reflections",
+    "challenge": "18-Day Challenge",
+    "viewAll": "View all →",
+    "stats": {
+      "versesRead": "Verses read",
+      "chaptersComplete": "Chapters complete",
+      "longestStreak": "Longest streak",
+      "daysJournaling": "Days journaling"
+    }
   },
   "auth": {
     "welcome": "Welcome",

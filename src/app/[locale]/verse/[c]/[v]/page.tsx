@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { getChapter } from '@/features/chapter';
+import { getSession } from '@/features/auth';
+import { isBookmarked } from '@/features/bookmark';
+import { BookmarkButton } from '@/features/bookmark/components/BookmarkButton';
 import {
   getNeighborVerses,
   getVerse,
@@ -71,12 +73,17 @@ export default async function VersePage({
   const verse = Number.parseInt(v, 10);
   if (Number.isNaN(chapter) || Number.isNaN(verse)) return notFound();
 
-  const [data, neighbors, tVerse] = await Promise.all([
+  const [data, neighbors, tVerse, session] = await Promise.all([
     getVerse({ chapter, verse }),
     getNeighborVerses({ chapter, verse }),
     getTranslations('verse'),
+    getSession(),
   ]);
   if (!data) return notFound();
+
+  const bookmarked = session?.user
+    ? await isBookmarked({ userId: session.user.id, chapter, verse })
+    : false;
 
   // Build language + author options from this verse's translations.
   const languageMap = new Map<string, { code: string; name: string; nativeName: string }>();
@@ -275,12 +282,7 @@ export default async function VersePage({
 
           {/* Actions */}
           <div className="mt-12 flex items-center justify-center gap-3">
-            <button
-              type="button"
-              className="px-5 py-2.5 rounded-full border border-gold-500/40 text-gold-500 text-sm hover:bg-gold-500/10 transition-colors"
-            >
-              {tVerse('bookmark')}
-            </button>
+            <BookmarkButton chapter={chapter} verse={verse} initialBookmarked={bookmarked} />
             <button
               type="button"
               className="px-5 py-2.5 rounded-full border border-gold-500/40 text-gold-500 text-sm hover:bg-gold-500/10 transition-colors"
@@ -325,7 +327,9 @@ export default async function VersePage({
           </div>
 
           {/* Anon CTA */}
-          <p className="mt-16 text-center text-xs text-text-muted/60">{tVerse('signInNudge')}</p>
+          {session?.user ? null : (
+            <p className="mt-16 text-center text-xs text-text-muted/60">{tVerse('signInNudge')}</p>
+          )}
         </Container>
       </main>
     </>

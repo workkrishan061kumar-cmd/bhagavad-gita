@@ -87,7 +87,8 @@
     "featured": "मुख्य",
     "selected": "चुना गया",
     "noTranslation": "चयनित संयोजन के लिए कोई अनुवाद उपलब्ध नहीं।",
-    "bookmark": "♡ सहेजें",
+    "bookmark": "सहेजें",
+    "bookmarked": "सहेजा गया",
     "share": "↗ साझा करें",
     "journal": "✎ चिंतन",
     "previousVerse": "← श्लोक {n}",
@@ -119,6 +120,40 @@
     "hint": "कम से कम 2 अक्षर या 2.47 जैसी श्लोक संख्या लिखें",
     "navigate": "नेविगेट",
     "select": "चुनें"
+  },
+  "bookmarks": {
+    "heading": "सहेजे गए श्लोक",
+    "countLabel": "{count, plural, =0 {कोई श्लोक नहीं} =1 {1 श्लोक} other {# श्लोक}}",
+    "emptyTitle": "अभी कोई सहेजा हुआ श्लोक नहीं",
+    "emptyBody": "किसी भी श्लोक के हृदय पर टैप करके उसे बाद के लिए सहेजें।",
+    "browse": "अध्याय देखें →",
+    "remove": "सहेजा हुआ हटाएं",
+    "savedAgo": "सहेजा गया {ago}",
+    "ago_today": "आज",
+    "ago_yesterday": "कल",
+    "ago_days": "{count} दिन पहले",
+    "ago_weeks": "{count} सप्ताह पहले"
+  },
+  "me": {
+    "greeting": "नमस्ते, {name}",
+    "streakLabel": "{count} दिन की सिलसिला",
+    "continueReading": "पढ़ना जारी रखें",
+    "continueReadingEmpty": "अपनी यात्रा शुरू करने के लिए एक श्लोक चुनें।",
+    "continueReadingCta": "जहाँ छोड़ा था वहाँ से शुरू करें →",
+    "browseChapters": "सभी अध्याय देखें →",
+    "todayMood": "आज का भाव",
+    "todayMoodBody": "एक भावना चुनें। हम उसके लिए श्लोक खोजेंगे।",
+    "chooseMood": "भाव चुनें →",
+    "recentBookmarks": "हाल ही सहेजे",
+    "recentReflections": "हाल के चिंतन",
+    "challenge": "18-दिन की यात्रा",
+    "viewAll": "सभी देखें →",
+    "stats": {
+      "versesRead": "श्लोक पढ़े",
+      "chaptersComplete": "अध्याय पूर्ण",
+      "longestStreak": "सबसे लंबा सिलसिला",
+      "daysJournaling": "चिंतन के दिन"
+    }
   },
   "auth": {
     "welcome": "स्वागत है",

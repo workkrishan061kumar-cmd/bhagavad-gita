@@ -1,11 +1,45 @@
-import Link from 'next/link';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { getSession } from '@/features/auth';
+import { countBookmarks, listBookmarks } from '@/features/bookmark';
+import { Link } from '@/i18n/navigation';
 import { Container } from '@/shared/components/layout/Container';
 import { Nav } from '@/shared/components/layout/Nav';
-import { mockVerses } from '@/shared/data/mock-verses';
 
-export default function DashboardPage() {
-  const sample = mockVerses['2.47'];
-  if (!sample) return null;
+type Params = Promise<{ locale: string }>;
+
+function firstName(name: string | null | undefined, email: string | null | undefined): string {
+  if (name && name.trim().length > 0) {
+    return name.split(' ')[0] ?? name;
+  }
+  if (email) return email.split('@')[0] ?? 'friend';
+  return 'friend';
+}
+
+export default async function DashboardPage({ params }: { params: Params }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  const session = await getSession();
+  // /me/layout already enforces auth, but TS doesn't know that.
+  if (!session?.user) return null;
+
+  const userId = session.user.id;
+
+  const [t, bookmarkCount, recentBookmarks] = await Promise.all([
+    getTranslations('me'),
+    countBookmarks(userId),
+    listBookmarks(userId),
+  ]);
+
+  const lastBookmark = recentBookmarks[0];
+  const continueRef = lastBookmark
+    ? {
+        chapter: lastBookmark.verse.chapter.number,
+        verse: lastBookmark.verse.number,
+        sanskrit: lastBookmark.verse.sanskrit,
+        translation: lastBookmark.verse.translations[0]?.text ?? '',
+      }
+    : null;
 
   return (
     <>
@@ -14,82 +48,94 @@ export default function DashboardPage() {
         <Container size="lg">
           <div className="flex items-center justify-between mb-10">
             <h1 className="font-display text-3xl md:text-4xl text-text-primary">
-              Namaste, Krishan
+              {t('greeting', { name: firstName(session.user.name, session.user.email) })}
             </h1>
-            <div className="flex items-center gap-2 text-gold-500">
-              <span className="text-2xl">🪔</span>
-              <span className="text-sm">7-day streak</span>
-            </div>
           </div>
 
           <div className="grid grid-cols-12 gap-5">
             <div className="col-span-12 md:col-span-7 p-6 rounded-2xl bg-bg-surface/60 border border-gold-500/20 hover:border-gold-500/40 transition-colors">
               <p className="text-gold-500 uppercase tracking-[0.2em] text-xs mb-2">
-                Continue reading
+                {t('continueReading')}
               </p>
-              <p className="font-sanskrit text-text-sanskrit text-lg mb-2">
-                {sample.sanskrit.split('\n')[0]}
-              </p>
-              <p className="text-text-secondary text-sm line-clamp-2 mb-4">{sample.english}</p>
-              <Link
-                href={`/verse/${sample.chapter}/${sample.verse}`}
-                className="inline-flex items-center text-gold-500 text-sm hover:text-gold-300 transition-colors"
-              >
-                Pick up where you left off →
-              </Link>
+              {continueRef ? (
+                <>
+                  <p className="font-sanskrit text-text-sanskrit text-lg mb-2 line-clamp-2">
+                    {continueRef.sanskrit.split('\n')[0]}
+                  </p>
+                  <p className="text-text-secondary text-sm line-clamp-2 mb-4">
+                    {continueRef.translation}
+                  </p>
+                  <Link
+                    href={`/verse/${continueRef.chapter}/${continueRef.verse}`}
+                    className="inline-flex items-center text-gold-500 text-sm hover:text-gold-300 transition-colors"
+                  >
+                    {t('continueReadingCta')}
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="text-text-secondary text-sm mb-4">{t('continueReadingEmpty')}</p>
+                  <Link
+                    href="/chapters"
+                    className="inline-flex items-center text-gold-500 text-sm hover:text-gold-300 transition-colors"
+                  >
+                    {t('browseChapters')}
+                  </Link>
+                </>
+              )}
             </div>
 
             <div className="col-span-12 md:col-span-5 p-6 rounded-2xl bg-bg-surface/60 border border-gold-500/10">
               <p className="text-gold-500 uppercase tracking-[0.2em] text-xs mb-2">
-                Today&apos;s mood
+                {t('todayMood')}
               </p>
-              <p className="text-text-secondary text-sm mb-4">
-                Pick a feeling. We&apos;ll find a verse for it.
-              </p>
+              <p className="text-text-secondary text-sm mb-4">{t('todayMoodBody')}</p>
               <Link
                 href="/daily"
                 className="inline-flex items-center px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/40 text-gold-500 text-sm hover:bg-gold-500/20 transition-colors"
               >
-                Choose mood →
+                {t('chooseMood')}
               </Link>
             </div>
 
-            {[
-              { label: 'Recent bookmarks', href: '/me/bookmarks', count: 12 },
-              { label: 'Recent reflections', href: '/me/journal', count: 5 },
-              { label: '18-Day Challenge', href: '/me/challenge', count: '7 / 18' },
-            ].map((card) => (
-              <Link
-                key={card.label}
-                href={card.href}
-                className="col-span-12 md:col-span-4 p-6 rounded-2xl bg-bg-surface/60 border border-gold-500/10 hover:border-gold-500/40 transition-colors group"
-              >
-                <p className="text-text-muted text-xs uppercase tracking-[0.2em] mb-3">
-                  {card.label}
-                </p>
-                <p className="font-display text-3xl text-gold-300 mb-2">{card.count}</p>
-                <p className="text-text-muted text-xs group-hover:text-gold-500 transition-colors">
-                  View all →
-                </p>
-              </Link>
-            ))}
+            <Link
+              href="/me/bookmarks"
+              className="col-span-12 md:col-span-4 p-6 rounded-2xl bg-bg-surface/60 border border-gold-500/10 hover:border-gold-500/40 transition-colors group"
+            >
+              <p className="text-text-muted text-xs uppercase tracking-[0.2em] mb-3">
+                {t('recentBookmarks')}
+              </p>
+              <p className="font-display text-3xl text-gold-300 mb-2">{bookmarkCount}</p>
+              <p className="text-text-muted text-xs group-hover:text-gold-500 transition-colors">
+                {t('viewAll')}
+              </p>
+            </Link>
 
-            <div className="col-span-12 grid grid-cols-2 md:grid-cols-4 gap-5 mt-2">
-              {[
-                { label: 'Verses read', value: 84 },
-                { label: 'Chapters complete', value: 3 },
-                { label: 'Longest streak', value: 21 },
-                { label: 'Days journaling', value: 18 },
-              ].map((s) => (
-                <div
-                  key={s.label}
-                  className="p-5 rounded-xl bg-bg-elevated/30 border border-gold-500/10 text-center"
-                >
-                  <p className="font-display text-2xl text-gold-300">{s.value}</p>
-                  <p className="text-text-muted text-xs mt-1">{s.label}</p>
-                </div>
-              ))}
-            </div>
+            <Link
+              href="/me/journal"
+              className="col-span-12 md:col-span-4 p-6 rounded-2xl bg-bg-surface/60 border border-gold-500/10 hover:border-gold-500/40 transition-colors group"
+            >
+              <p className="text-text-muted text-xs uppercase tracking-[0.2em] mb-3">
+                {t('recentReflections')}
+              </p>
+              <p className="font-display text-3xl text-gold-300 mb-2">—</p>
+              <p className="text-text-muted text-xs group-hover:text-gold-500 transition-colors">
+                {t('viewAll')}
+              </p>
+            </Link>
+
+            <Link
+              href="/me/challenge"
+              className="col-span-12 md:col-span-4 p-6 rounded-2xl bg-bg-surface/60 border border-gold-500/10 hover:border-gold-500/40 transition-colors group"
+            >
+              <p className="text-text-muted text-xs uppercase tracking-[0.2em] mb-3">
+                {t('challenge')}
+              </p>
+              <p className="font-display text-3xl text-gold-300 mb-2">—</p>
+              <p className="text-text-muted text-xs group-hover:text-gold-500 transition-colors">
+                {t('viewAll')}
+              </p>
+            </Link>
           </div>
         </Container>
       </main>
