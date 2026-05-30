@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getSession } from '@/features/auth';
 import { isBookmarked } from '@/features/bookmark';
 import { BookmarkButton } from '@/features/bookmark/components/BookmarkButton';
+import { VerseViewTracker } from '@/features/progress/components/VerseViewTracker';
 import {
   getNeighborVerses,
   getVerse,
@@ -151,6 +152,7 @@ export default async function VersePage({
   return (
     <>
       <Nav />
+      {session?.user ? <VerseViewTracker chapter={chapter} verse={verse} /> : null}
 
       <main className="relative py-12 md:py-20">
         <div className="absolute inset-0 flex items-start justify-center pointer-events-none pt-20">

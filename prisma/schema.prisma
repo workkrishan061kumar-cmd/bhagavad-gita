@@ -91,6 +91,7 @@ model Verse {
   bookmarks      Bookmark[]
   journalEntries JournalEntry[]
   moodLogs       MoodLog[]
+  views          VerseView[]
 
   @@unique([chapterId, number])
   @@index([themes], type: Gin)
@@ -181,6 +182,7 @@ model User {
   whatsappOptIn     Boolean   @default(false)
   whatsappNumber    String?
   streakDays        Int       @default(0)
+  longestStreak     Int       @default(0)
   lastReadAt        DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -190,6 +192,8 @@ model User {
   moodLogs       MoodLog[]
   accounts       Account[]
   sessions       Session[]
+  verseViews     VerseView[]
+  readingDays    ReadingDay[]
 
   @@map("users")
 }
@@ -247,6 +251,39 @@ model Bookmark {
   @@unique([userId, verseId])
   @@index([userId, createdAt])
   @@map("bookmarks")
+}
+
+// ─────────────────────────────────────────────────────────
+// Reading progress (Phase 2.C)
+// ─────────────────────────────────────────────────────────
+
+// One row per (user, verse) — records the first-ever view.
+// Used to compute versesRead + chaptersComplete + lastReadAt.
+model VerseView {
+  userId    String
+  verseId   Int
+  viewedAt  DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verse Verse @relation(fields: [verseId], references: [id])
+
+  @@id([userId, verseId])
+  @@index([userId, viewedAt])
+  @@index([verseId])
+  @@map("verse_views")
+}
+
+// One row per (user, day) — records that the user read SOMETHING that day.
+// Drives the streak calculation independently of which verses were read.
+model ReadingDay {
+  userId String
+  date   DateTime @db.Date
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, date])
+  @@index([userId, date(sort: Desc)])
+  @@map("reading_days")
 }
 
 model JournalEntry {

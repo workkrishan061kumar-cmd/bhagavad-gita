@@ -1,6 +1,8 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getSession } from '@/features/auth';
-import { countBookmarks, listBookmarks } from '@/features/bookmark';
+import { countBookmarks } from '@/features/bookmark';
+import { getMostRecentVerse, getProgressStats } from '@/features/progress';
+import { StreakFlame } from '@/features/progress/components/StreakFlame';
 import { Link } from '@/i18n/navigation';
 import { Container } from '@/shared/components/layout/Container';
 import { Nav } from '@/shared/components/layout/Nav';
@@ -20,24 +22,23 @@ export default async function DashboardPage({ params }: { params: Params }) {
   setRequestLocale(locale);
 
   const session = await getSession();
-  // /me/layout already enforces auth, but TS doesn't know that.
   if (!session?.user) return null;
 
   const userId = session.user.id;
 
-  const [t, bookmarkCount, recentBookmarks] = await Promise.all([
+  const [t, bookmarkCount, mostRecent, stats] = await Promise.all([
     getTranslations('me'),
     countBookmarks(userId),
-    listBookmarks(userId),
+    getMostRecentVerse(userId),
+    getProgressStats(userId),
   ]);
 
-  const lastBookmark = recentBookmarks[0];
-  const continueRef = lastBookmark
+  const continueRef = mostRecent
     ? {
-        chapter: lastBookmark.verse.chapter.number,
-        verse: lastBookmark.verse.number,
-        sanskrit: lastBookmark.verse.sanskrit,
-        translation: lastBookmark.verse.translations[0]?.text ?? '',
+        chapter: mostRecent.verse.chapter.number,
+        verse: mostRecent.verse.number,
+        sanskrit: mostRecent.verse.sanskrit,
+        translation: mostRecent.verse.translations[0]?.text ?? '',
       }
     : null;
 
@@ -46,10 +47,20 @@ export default async function DashboardPage({ params }: { params: Params }) {
       <Nav />
       <main className="py-12 md:py-16">
         <Container size="lg">
-          <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center justify-between gap-4 mb-10 flex-wrap">
             <h1 className="font-display text-3xl md:text-4xl text-text-primary">
               {t('greeting', { name: firstName(session.user.name, session.user.email) })}
             </h1>
+            <div
+              className={
+                stats.currentStreak > 0
+                  ? 'flex items-center gap-2 px-3 py-1.5 rounded-full border border-saffron-400/40 bg-saffron-400/5 text-saffron-400'
+                  : 'flex items-center gap-2 px-3 py-1.5 rounded-full border border-gold-500/20 text-text-muted'
+              }
+            >
+              <StreakFlame days={stats.currentStreak} size={26} className="text-gold-500/70" />
+              <span className="text-sm">{t('streakLabel', { count: stats.currentStreak })}</span>
+            </div>
           </div>
 
           <div className="grid grid-cols-12 gap-5">
@@ -136,6 +147,25 @@ export default async function DashboardPage({ params }: { params: Params }) {
                 {t('viewAll')}
               </p>
             </Link>
+
+            <div className="col-span-12 grid grid-cols-2 md:grid-cols-4 gap-5 mt-2">
+              <div className="p-5 rounded-xl bg-bg-elevated/30 border border-gold-500/10 text-center">
+                <p className="font-display text-2xl text-gold-300">{stats.versesRead}</p>
+                <p className="text-text-muted text-xs mt-1">{t('stats.versesRead')}</p>
+              </div>
+              <div className="p-5 rounded-xl bg-bg-elevated/30 border border-gold-500/10 text-center">
+                <p className="font-display text-2xl text-gold-300">{stats.chaptersComplete}</p>
+                <p className="text-text-muted text-xs mt-1">{t('stats.chaptersComplete')}</p>
+              </div>
+              <div className="p-5 rounded-xl bg-bg-elevated/30 border border-gold-500/10 text-center">
+                <p className="font-display text-2xl text-gold-300">{stats.longestStreak}</p>
+                <p className="text-text-muted text-xs mt-1">{t('stats.longestStreak')}</p>
+              </div>
+              <div className="p-5 rounded-xl bg-bg-elevated/30 border border-gold-500/10 text-center">
+                <p className="font-display text-2xl text-gold-300">—</p>
+                <p className="text-text-muted text-xs mt-1">{t('stats.daysJournaling')}</p>
+              </div>
+            </div>
           </div>
         </Container>
       </main>
