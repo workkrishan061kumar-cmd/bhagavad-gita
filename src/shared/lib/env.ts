@@ -9,8 +9,16 @@ export const env = createEnv({
 
     NEXTAUTH_SECRET: z.string().min(32),
     NEXTAUTH_URL: z.string().url().optional(),
-    GOOGLE_CLIENT_ID: z.string().min(1).optional(),
-    GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
+    AUTH_TRUST_HOST: z.string().optional(),
+    GOOGLE_CLIENT_ID: z.string().min(1),
+    GOOGLE_CLIENT_SECRET: z.string().min(1),
+    RESEND_FROM_EMAIL: z
+      .string()
+      .min(1)
+      .regex(/^.+<[^@\s]+@[^@\s]+\.[^@\s]+>$|^[^@\s]+@[^@\s]+\.[^@\s]+$/, {
+        message: 'Must be either an email or a "Name <email>" string',
+      })
+      .default('Gita-Verse <onboarding@resend.dev>'),
 
     OPENAI_API_KEY: z.string().min(1).optional(),
 
@@ -21,7 +29,7 @@ export const env = createEnv({
     TWILIO_AUTH_TOKEN: z.string().min(1).optional(),
     TWILIO_WHATSAPP_FROM: z.string().min(1).optional(),
 
-    RESEND_API_KEY: z.string().min(1).optional(),
+    RESEND_API_KEY: z.string().min(1),
 
     SENTRY_DSN: z.string().url().optional(),
     SENTRY_AUTH_TOKEN: z.string().min(1).optional(),
@@ -37,8 +45,10 @@ export const env = createEnv({
     DIRECT_URL: process.env.DIRECT_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+    RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,

@@ -1,4 +1,5 @@
 import { useTranslations } from 'next-intl';
+import { UserPill } from '@/features/auth/components/UserPill';
 import { Link } from '@/i18n/navigation';
 import { CommandPalette } from './CommandPalette';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -41,12 +42,7 @@ export function Nav() {
         <div className="flex items-center gap-2">
           <CommandPalette />
           <LanguageSwitcher />
-          <Link
-            href="/auth"
-            className="text-sm px-4 py-2 rounded-full border border-gold-500/40 text-gold-500 hover:bg-gold-500/10 transition-colors"
-          >
-            {t('signIn')}
-          </Link>
+          <UserPill />
         </div>
       </nav>
     </header>

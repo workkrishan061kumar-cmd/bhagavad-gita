@@ -1,10 +1,18 @@
 {
+  "meta": {
+    "siteTitle": "Gita-Verse — Ancient wisdom. Daily guidance.",
+    "siteDescription": "Read all 700 verses of the Bhagavad Gita with Sanskrit, transliteration, multiple translations, audio recitations, and search. Free, no ads, no paywall."
+  },
   "nav": {
     "chapters": "Chapters",
     "ask": "Ask Krishna",
     "daily": "Daily Verse",
     "library": "Library",
     "signIn": "Sign in",
+    "signOut": "Sign out",
+    "myDashboard": "My dashboard",
+    "myBookmarks": "Bookmarks",
+    "myJournal": "Journal",
     "switchLanguage": "Switch language"
   },
   "home": {
@@ -111,5 +119,29 @@
     "hint": "Type at least 2 characters or a verse reference like 2.47",
     "navigate": "navigate",
     "select": "select"
+  },
+  "auth": {
+    "welcome": "Welcome",
+    "subtitle": "Sign in to bookmark, reflect, and receive your daily verse.",
+    "continueWithGoogle": "Continue with Google",
+    "or": "or",
+    "emailPlaceholder": "you@example.com",
+    "sendMagicLink": "Send magic link",
+    "sending": "Sending…",
+    "termsLine": "By signing in you agree to our",
+    "terms": "terms",
+    "and": "and",
+    "privacy": "privacy policy",
+    "verseLine": "Yoga is skill in action.",
+    "verseRef": "— 2.50",
+    "verifyHeading": "Check your inbox",
+    "verifyBodyKnown": "We sent a sign-in link to {email}. The link is valid for 24 hours.",
+    "verifyBody": "We sent you a sign-in link. The link is valid for 24 hours.",
+    "verifyHint": "If you don't see it, check spam or promotions. The sender is onboarding@resend.dev.",
+    "verifyBack": "← Back to sign in",
+    "errorTitle": "Something went wrong",
+    "errorSendFailed": "We couldn't send the magic link. Please try again or use Google sign-in.",
+    "errorGeneric": "We couldn't sign you in. Please try again.",
+    "errorInvalidEmail": "Please enter a valid email address."
   }
 }

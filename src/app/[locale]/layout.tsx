@@ -4,6 +4,7 @@ import { Inter, Playfair_Display, Tiro_Devanagari_Sanskrit } from 'next/font/goo
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { SessionProviders } from '@/features/auth/components/SessionProviders';
 import { routing } from '@/i18n/routing';
 
 const inter = Inter({
@@ -107,7 +108,9 @@ export default async function LocaleLayout({ children, params }: Props) {
       suppressHydrationWarning
     >
       <body className="min-h-dvh font-body antialiased">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <SessionProviders>{children}</SessionProviders>
+        </NextIntlClientProvider>
         <Analytics />
       </body>
     </html>
